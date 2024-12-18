@@ -1,0 +1,85 @@
+name: mvp_docker
+services:
+  database:
+    image: postgres:16
+    container_name: mvp_laravel_postgres
+    restart: unless-stopped
+    tty: true
+    environment:
+      POSTGRES_DB: 'mvp_laravel'
+      # So you don't have to use root, but you can if you like
+      POSTGRES_USER: 'mvp_laravel_user'
+      # You can use whatever password you like
+      POSTGRES_PASSWORD: 'mvp_laravel@123'
+    ports:
+      # <Port exposed> : < Postgres Port running inside container>
+      - '5432:5432'
+    expose:
+      # Opens port 3306 on the container
+      - '5432'
+      # Where our data will be persisted
+    volumes:
+      - mvp-postgres-db:/var/lib/postgresql/data
+    networks:
+      - mvp_network
+  mariadb:
+    image: mariadb:10.11
+    container_name: mvp_laravel_mariadb
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root@123
+      MYSQL_DATABASE: mvp_laravel
+      MYSQL_USER: mvp_laravel_user
+      MYSQL_PASSWORD: mvp_laravel@123
+    ports:
+      - "3308:3306"
+    volumes:
+      - mariadb_data:/var/lib/mysql
+    networks:
+      - mvp_network
+  app:
+    build:
+      context: .
+      dockerfile: ./deployment/php/dockerfile
+    container_name: mvp_app
+    restart: unless-stopped
+    tty: true
+    working_dir: /var/www/html/
+    volumes:
+    - .:/var/www/html/api
+    expose:
+      - "9000"
+    depends_on:
+      - database
+    command: [ "php-fpm" ]
+    networks:
+      - mvp_network
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - "8080:8080"
+    networks:
+      - mvp_network
+  web:
+    build:
+      context: .
+      dockerfile: ./deployment/nginx/dockerfile
+    container_name: mvp_server
+    restart: unless-stopped
+    tty: true
+    working_dir: /var/www/html
+    expose:
+      - "80"
+    ports:
+      - "80:80"
+    depends_on:
+      - app
+    networks:
+      - mvp_network
+volumes:
+  mvp-postgres-db:
+  mariadb_data:
+networks:
+  mvp_network:
+    driver: bridge
