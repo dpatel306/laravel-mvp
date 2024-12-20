@@ -4,6 +4,9 @@ FROM php:8.3-fpm
 #RUN addgroup --gid 1000 www \
 #    && adduser --disabled-password --gecos "" --ingroup www --no-create-home www
 
+# RUN groupadd -g 1000 www \
+#     && useradd -m -u 1000 -g www www
+
 # Install system dependencies, PHP extensions, and Composer
 RUN apt-get clean && apt-get update && apt-get install -y \
     libpq-dev \
@@ -20,6 +23,10 @@ RUN apt-get clean && apt-get update && apt-get install -y \
     libxml2-dev \
     libonig-dev \
     libxslt-dev \
+    # Install Node.js and npm
+    nodejs \
+    npm \
+    # Install PHP extensions
     && docker-php-ext-install intl \
     && docker-php-ext-configure zip \
     && docker-php-ext-install zip \
@@ -29,25 +36,16 @@ RUN apt-get clean && apt-get update && apt-get install -y \
 
 # Set working directory
 WORKDIR /var/www/html
-# Install Composer
-#RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
-# Install Composer dependencies (conditionally if composer.lock exists)
-#COPY ./api/composer.json ./api/composer.lock /var/www/html/api/
-#RUN if [ -f "composer.lock" ]; then composer install --no-scripts --no-autoloader; else composer install; fi
-
-# Autoload Composer files
-#RUN composer dump-autoload
+# Ensure correct ownership for the application files
+#RUN chown -R www:www /var/www/html
 
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
 # Copy application code first to avoid invalidating cache unnecessarily
 COPY . /var/www/html
-# Copy entrypoint script
-#COPY ./deployment/php/entrypoint.sh /var/www/html/api/entrypoint.sh
-#COPY ./deployment /var/www/html/deployment
-#RUN chmod -R 777 /var/www/
+
+# USER www
 
 # Set entrypoint
 ENTRYPOINT ["sh", "/var/www/html/deployment/php/entrypoint.sh"]
-#ENTRYPOINT ["sh", "/var/www/html/api/deployment/php/entrypoint.sh"]
