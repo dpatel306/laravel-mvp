@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Authentication;
 
+use Illuminate\Http\Client\Request;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\Rule;
 use Livewire\Attributes\Title;
@@ -26,9 +27,15 @@ class Login extends Component
         $credentials = ['email' => $this->email, 'password' => $this->password];
         if (Auth::guard('admin')->attempt($credentials)) {
             session()->flash('success', 'Login Success.');
-            $this->redirect('/dashboard',true);
+            $this->redirect('/dashboard', true);
         } else {
             session()->flash('error', 'Invalid login credentials.');
         }
+    }
+
+    public function logout()
+    {
+        Auth::logout();
+        return redirect('/login');
     }
 }
