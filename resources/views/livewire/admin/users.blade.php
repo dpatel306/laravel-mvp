@@ -1,64 +1,73 @@
 <div class="container mx-auto px-6 py-8">
-
-
-    <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
+    <div class="relative overflow-x-auto shadow-md sm:rounded-lg mb-4">
         <div class="p-4 bg-white dark:bg-gray-900">
-            <label for="table-record" class="sr-only">Per Page</label>
-            <div class="relative mt-1">
-                <select 
-                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-80 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
-                wire:model.change="recordPerPage" >
-                    @foreach($perPageRecords as $r)
-                        <option >{{{$r}}}</option>
-                    @endforeach
-                </select>
-            </div>
-        </div>
-        <div class="p-4 bg-white dark:bg-gray-900">
-            <label for="table-search" class="sr-only">Search</label>
-            <div class="relative mt-1">
-                <div class="absolute inset-y-0 rtl:inset-r-0 start-0 flex items-center ps-3 pointer-events-none">
-                    <svg class="w-4 h-4 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
-                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z" />
-                    </svg>
+            <h1 class="text-left text-slate-800 text-xl font-medium">User List</h1>
+            <div class="p-4 bg-white dark:bg-gray-900">
+                <label for="table-search" class="sr-only">Search</label>
+                <div class="mt-1">
+                    <input type="text" id="table-search" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-80 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Search for items">
                 </div>
-                <input type="text" id="table-search" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-80 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Search for items">
+            </div>
+            <div class="mt-8 grid grid-cols-5 gap-3">
+                @foreach($users as $user)
+                <div class="bg-slate-200 p-2 max-w-sm rounded-md flex float-start flex-col relative group">
+                    <img src="{{ asset('upload/users/user.jpg') }}">
+                    <div class="flex float-start flex-col">
+                        <span class="text-sm text-left text-blue-700">{{$user->name}}</span>
+                        <span class="text-xs">{{$user->email}}</span>
+                    </div>
+                    <div class="absolute inset-0 bg-black opacity-0 group-hover:opacity-20 transition-opacity duration-300 z-0"></div>
+
+                    <!-- Foreground Content -->
+                    <div class="absolute inset-0 flex justify-center items-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10">
+                        <a class="bg-red-600 text-white p-2 mx-2 rounded-md hover:bg-red-700 transition-colors duration-300">Delete</a>
+                        <a class="bg-green-600 text-white p-2 mx-2 rounded-md hover:bg-green-700 transition-colors duration-300" wire:click="openModal({{ $user->id }})">Edit</a>
+                    </div>
+                </div>
+                @endforeach
             </div>
         </div>
-        <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
-            <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
-                <tr>
-                    <th scope="col" class="px-6 py-3">
-                        Name
-                    </th>
-                    <th scope="col" class="px-6 py-3">
-                        Email
-                    </th>
-                    <th scope="col" class="px-6 py-3">
-                        #
-                    </th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach($users as $user)
-                <tr class="odd:bg-white odd:dark:bg-gray-900 even:bg-gray-50 even:dark:bg-gray-800 border-b dark:border-gray-700">
-                    <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                        {{$user->name}}
-                    </th>
-                    <td class="px-6 py-4">
-                        {{$user->email}}
-                    </td>
-                    <td class="px-6 py-4">
-                        {{$user->id}}
-                        <a href="#" class="font-medium text-blue-600 dark:text-blue-500 hover:underline">Edit</a>
-                    </td>
-                </tr>
-                @endforeach
-            </tbody>
-        </table>
         <div class="p-4 bg-white dark:bg-gray-900">
             {{ $users->links() }}
         </div>
     </div>
+    <!-- Modal -->
+    @if($isOpen)
+        <div 
+        x-data="{ showModal: false }"
+        x-init="setTimeout(() => showModal = true, 50)" 
+        x-show="showModal"
+        class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50 transition-opacity duration-200 ease-out"
+        x-transition:enter="transition-opacity ease-out duration-200"
+        x-transition:enter-start="opacity-0"
+        x-transition:enter-end="opacity-100"
+        x-transition:leave="transition-opacity ease-in duration-200"
+        x-transition:leave-start="opacity-100"
+        x-transition:leave-end="opacity-0"
+        @click.away="showModal = false; $wire.closeModal()"
+        >
+            <div class="bg-white p-6 rounded shadow-lg w-1/2">
+                <h2 class="text-xl font-bold mb-4">Edit User Details</h2>
 
+                <form wire:submit.prevent="saveUser">
+                    <div class="mb-4">
+                        <label for="name" class="block text-sm font-medium">Name</label>
+                        <input type="text" id="name" wire:model="name" class="w-full border rounded px-3 py-2" />
+                        @error('name') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="email" class="block text-sm font-medium">Email</label>
+                        <input type="email" id="email" wire:model="email" class="w-full border rounded px-3 py-2" />
+                        @error('email') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
+                    </div>
+
+                    <div class="flex justify-end">
+                        <button type="button" wire:click="closeModal" class="bg-gray-500 text-white px-4 py-2 rounded mr-2">Cancel</button>
+                        <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded">Save</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    @endif
 </div>

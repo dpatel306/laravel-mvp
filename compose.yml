@@ -76,6 +76,7 @@ services:
       - "80"
     ports:
       - "80:80"
+      - "5173:5173"  # Vite dev server port
     depends_on:
       - app
     networks:
