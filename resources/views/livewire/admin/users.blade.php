@@ -10,8 +10,8 @@
             </div>
             <div class="mt-8 grid grid-cols-5 gap-3">
                 @foreach($users as $user)
-                <div class="bg-slate-200 p-2 max-w-sm rounded-md flex float-start flex-col relative group">
-                    <img src="{{ asset('upload/users/user.jpg') }}">
+                <div wire:key="{{ $user->id }}" class="bg-slate-200 p-2 max-w-sm rounded-md flex float-start flex-col relative group">
+                    <img src="{{ Storage::url('upload/users/user.jpg') }}">
                     <div class="flex float-start flex-col">
                         <span class="text-sm text-left text-blue-700">{{$user->name}}</span>
                         <span class="text-xs">{{$user->email}}</span>
@@ -20,7 +20,12 @@
 
                     <!-- Foreground Content -->
                     <div class="absolute inset-0 flex justify-center items-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10">
-                        <a class="bg-red-600 text-white p-2 mx-2 rounded-md hover:bg-red-700 transition-colors duration-300">Delete</a>
+                        <a 
+                        class="bg-red-600 text-white p-2 mx-2 rounded-md hover:bg-red-700 transition-colors duration-300"
+                        type="button"
+                        wire:click="deleteUser({{ $user->id }})"
+                        wire:confirm="Are you sure you want to delete this post?"
+                        >Delete</a>
                         <a class="bg-green-600 text-white p-2 mx-2 rounded-md hover:bg-green-700 transition-colors duration-300" wire:click="openModal({{ $user->id }})">Edit</a>
                     </div>
                 </div>

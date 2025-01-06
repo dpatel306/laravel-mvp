@@ -64,4 +64,11 @@ class Users extends Component
         $this->closeModal();
         session()->flash('message', 'User details updated successfully!');
     }
+
+    public function deleteUser($id){
+        $user = User::findOrFail($id);
+        $user->delete();
+        session()->flash('message', 'User has been deleted successfully!');
+        $this->reset();
+    }
 }
