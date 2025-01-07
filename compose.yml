@@ -81,9 +81,21 @@ services:
       - app
     networks:
       - mvp_network
+  redis:
+    image: 'redis:7.0.4'
+    container_name: mvp_redis
+    tty: true
+    command: redis-server --requirepass "mvp@123"
+    expose:
+      - '6379'
+    volumes:
+      - mvp-redis-db:/data
+    networks:
+      - mvp_network
 volumes:
   mvp-postgres-db:
   mariadb_data:
+  mvp-redis-db:
 networks:
   mvp_network:
     driver: bridge
