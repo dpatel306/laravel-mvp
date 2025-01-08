@@ -1,0 +1,23 @@
+FROM php:8.3-fpm
+
+# Install Supervisor and required extensions
+RUN apt-get update && apt-get install -y \
+    supervisor \
+    && docker-php-ext-install pcntl \
+    && pecl install redis \
+    && docker-php-ext-enable redis
+
+# Set working directory
+WORKDIR /var/www/html
+
+# Copy the Laravel application files
+COPY . /var/www/html
+
+# Copy Supervisor configuration
+COPY ./deployment/supervisor/conf.d/laravel-worker.conf /etc/supervisor/conf.d/laravel-worker.conf
+
+# Expose port (optional, if needed)
+EXPOSE 9000
+
+# Set Supervisor as the entry point
+CMD ["supervisord", "-n"]

@@ -92,6 +92,27 @@ services:
       - mvp-redis-db:/data
     networks:
       - mvp_network
+  supervisor:
+    build:
+      context: .
+      dockerfile: ./deployment/supervisor/dockerfile
+    container_name: mpv_supervisor
+    restart: unless-stopped
+    volumes:
+      - .:/var/www/html
+    depends_on:
+      - redis
+    networks:
+      - mvp_network
+
+  mailhog:
+      image: mailhog/mailhog
+      container_name: 'mvp_mailhog'
+      ports:
+        - "1025:1025"
+        - "8025:8025"
+      networks:
+      - mvp_network
 volumes:
   mvp-postgres-db:
   mariadb_data:
