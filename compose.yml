@@ -96,12 +96,11 @@ services:
     build:
       context: .
       dockerfile: ./deployment/supervisor/dockerfile
-    container_name: mpv_supervisor
+    container_name: mvp_supervisor
+    tty: true
     restart: unless-stopped
     volumes:
       - .:/var/www/html
-    depends_on:
-      - redis
     networks:
       - mvp_network
 

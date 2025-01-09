@@ -14,8 +14,7 @@ WORKDIR /var/www/html
 COPY . /var/www/html
 
 # Copy Supervisor configuration
-COPY ./deployment/supervisor/conf.d/laravel-worker.conf /etc/supervisor/conf.d/laravel-worker.conf
-
+COPY ./deployment/supervisor/conf.d/ /etc/supervisor/conf.d/
 # Expose port (optional, if needed)
 EXPOSE 9000
 
